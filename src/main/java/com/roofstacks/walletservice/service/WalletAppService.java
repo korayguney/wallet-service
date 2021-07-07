@@ -2,9 +2,7 @@ package com.roofstacks.walletservice.service;
 
 import com.roofstacks.walletservice.dto.CustomerDTO;
 import com.roofstacks.walletservice.dto.WalletDTO;
-import com.roofstacks.walletservice.exception.BadRequestException;
-import com.roofstacks.walletservice.exception.CustomerNotFoundException;
-import com.roofstacks.walletservice.exception.WalletAlreadyExistsException;
+import com.roofstacks.walletservice.exception.*;
 import com.roofstacks.walletservice.mapper.CustomerMapper;
 import com.roofstacks.walletservice.mapper.WalletMapper;
 import com.roofstacks.walletservice.model.Customer;
@@ -56,6 +54,7 @@ public class WalletAppService {
 
 
     public Optional<Wallet> save_wallet(WalletDTO wallet) {
+        this.validateRequest(wallet);
         Wallet mappedWalled = walletMapper.mapFromWalletDTOtowallet(wallet);
         if (walletRepository.selectExistsWalletWithSameCurrency(mappedWalled.getCurrency(), mappedWalled.getCustomer().getId())) {
             throw new WalletAlreadyExistsException("Wallet with currency type : " + mappedWalled.getCurrency().getCurrencyName()
@@ -66,6 +65,10 @@ public class WalletAppService {
 
     }
 
+    private void validateRequest(WalletDTO wallet) {
+        WalletAppValidatorUtil.validateWalletBalance(wallet.getBalance());
+    }
+
     // will be used by WalletMapper during compile
     public Customer findCustomerById(long customerId) {
         Customer foundCustomer = customerRepository.findById(customerId).
@@ -74,7 +77,7 @@ public class WalletAppService {
     }
 
     public Optional<Wallet> getWallet(long customerId, String currencyName) {
-        return Optional.of(walletRepository.findWallet(customerId, Currency.valueOf(currencyName)));
+        return Optional.of(walletRepository.findWallet(customerId, Currency.valueOf(currencyName.toUpperCase())));
     }
 
     public Optional<List<Wallet>> getAllWallets(long customerId) {
@@ -82,7 +85,7 @@ public class WalletAppService {
     }
 
     public Optional<Wallet> deposit(long customerId, String currencyName, double amount) {
-        Optional<Wallet> wallet = getWalletForDepositWithdraw(customerId, currencyName);
+        Optional<Wallet> wallet = getWalletForDepositWithdraw(customerId, currencyName.toUpperCase());
         this.saveTransactionToDatabase(wallet.get(), amount, TransactionType.DEPOSIT);
         wallet.get().setBalance(wallet.get().getBalance() + amount);
         this.walletRepository.save(wallet.get());
@@ -90,7 +93,10 @@ public class WalletAppService {
     }
 
     public Optional<Wallet> withdraw(long customerId, String currencyName, double amount) {
-        Optional<Wallet> wallet = getWalletForDepositWithdraw(customerId, currencyName);
+        Optional<Wallet> wallet = getWalletForDepositWithdraw(customerId, currencyName.toUpperCase());
+        if(amount > wallet.get().getBalance()) {
+            throw new NoEnoughBalanceForWithdrawException(ErrorMessageConstants.NO_ENOUGH_BALANCE + " " + amount + " " + wallet.get().getCurrency().getCurrencySign());
+        }
         this.saveTransactionToDatabase(wallet.get(), amount, TransactionType.WITHDRAW);
         wallet.get().setBalance(wallet.get().getBalance() - amount);
         this.walletRepository.save(wallet.get());
@@ -114,9 +120,9 @@ public class WalletAppService {
 
     private Optional<Wallet> getWalletForDepositWithdraw(long customerId, String currencyName) {
         Customer foundCustomer = this.findCustomerById(customerId);
-        Optional<Wallet> wallet = foundCustomer.getWallets().stream().filter(w -> w.getCurrency().equals(Currency.valueOf(currencyName))).findFirst();
+        Optional<Wallet> wallet = foundCustomer.getWallets().stream().filter(w -> w.getCurrency().equals(Currency.valueOf(currencyName.toUpperCase()))).findFirst();
         if (!wallet.isPresent()) {
-            throw new BadRequestException("Customer : " + foundCustomer.getFirstName() + " " + foundCustomer.getSecondName() + " does not have wallet with currency : " + currencyName);
+            throw new BadRequestException("Customer : " + foundCustomer.getFirstName() + " " + foundCustomer.getSecondName() + " does not have wallet with currency : " + currencyName.toUpperCase());
         }
         return wallet;
     }

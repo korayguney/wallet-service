@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +27,7 @@ public class WalletAppController {
     }
 
     @PostMapping(value = "/save-wallet", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Wallet> saveWallet(@RequestBody WalletDTO wallet) {
+    public ResponseEntity<Wallet> saveWallet(@RequestBody @Valid WalletDTO wallet) {
         Optional<Wallet> resultOptional = this.walletAppService.save_wallet(wallet);
         if (resultOptional.isPresent()) {
             return new ResponseEntity<>(resultOptional.get(), HttpStatus.OK);

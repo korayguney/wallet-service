@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -23,7 +24,7 @@ public class CustomerController {
     }
 
     @PostMapping(value = "/save-customer", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Customer> saveCustomer(@RequestBody CustomerDTO customer) {
+    public ResponseEntity<Customer> saveCustomer(@RequestBody @Valid CustomerDTO customer) {
         Optional<Customer> resultOptional = this.walletAppService.save_customer(customer);
         if (resultOptional.isPresent()) {
             return new ResponseEntity<>(resultOptional.get(), HttpStatus.OK);
