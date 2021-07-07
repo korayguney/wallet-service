@@ -1,8 +1,6 @@
 package com.roofstacks.walletservice.controller;
 
-import com.roofstacks.walletservice.dto.CustomerDTO;
 import com.roofstacks.walletservice.dto.WalletDTO;
-import com.roofstacks.walletservice.model.Customer;
 import com.roofstacks.walletservice.model.Wallet;
 import com.roofstacks.walletservice.model.WalletServiceTransactionLogger;
 import com.roofstacks.walletservice.service.WalletAppService;
@@ -19,21 +17,12 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "api/")
+@RequestMapping(path = "api/wallet")
 public class WalletAppController {
     public WalletAppService walletAppService;
 
     public WalletAppController(WalletAppService walletAppService) {
         this.walletAppService = walletAppService;
-    }
-
-    @PostMapping(value = "/save-customer", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Customer> saveCustomer(@RequestBody CustomerDTO customer) {
-        Optional<Customer> resultOptional = this.walletAppService.save_customer(customer);
-        if (resultOptional.isPresent()) {
-            return new ResponseEntity<>(resultOptional.get(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = "/save-wallet", produces = MediaType.APPLICATION_JSON_VALUE)
