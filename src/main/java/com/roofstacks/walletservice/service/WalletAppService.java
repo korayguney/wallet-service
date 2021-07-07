@@ -9,12 +9,21 @@ import com.roofstacks.walletservice.mapper.CustomerMapper;
 import com.roofstacks.walletservice.mapper.WalletMapper;
 import com.roofstacks.walletservice.model.Customer;
 import com.roofstacks.walletservice.model.Wallet;
+import com.roofstacks.walletservice.model.WalletServiceTransactionLogger;
 import com.roofstacks.walletservice.model.enums.Currency;
+import com.roofstacks.walletservice.model.enums.TransactionType;
 import com.roofstacks.walletservice.repository.CustomerRepository;
 import com.roofstacks.walletservice.repository.WalletRepository;
+import com.roofstacks.walletservice.repository.WalletServiceTransactionLoggerRepository;
+import com.roofstacks.walletservice.utils.ClientRequestInfo;
+import com.roofstacks.walletservice.utils.WalletAppValidatorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,9 +35,13 @@ public class WalletAppService {
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
+    private WalletServiceTransactionLoggerRepository transactionLoggerRepository;
+    @Autowired
     CustomerMapper customerMapper;
     @Autowired
     WalletMapper walletMapper;
+    @Autowired
+    private ClientRequestInfo clientRequestInfo;
 
     public Optional<Customer> save_customer(CustomerDTO customer) {
         boolean isExists = customerRepository.selectExistsSsid(customer.getSsid());
@@ -70,6 +83,7 @@ public class WalletAppService {
 
     public Optional<Wallet> deposit(long customerId, String currencyName, double amount) {
         Optional<Wallet> wallet = getWalletForDepositWithdraw(customerId, currencyName);
+        this.saveTransactionToDatabase(wallet.get(), amount, TransactionType.DEPOSIT);
         wallet.get().setBalance(wallet.get().getBalance() + amount);
         this.walletRepository.save(wallet.get());
         return wallet;
@@ -77,9 +91,25 @@ public class WalletAppService {
 
     public Optional<Wallet> withdraw(long customerId, String currencyName, double amount) {
         Optional<Wallet> wallet = getWalletForDepositWithdraw(customerId, currencyName);
+        this.saveTransactionToDatabase(wallet.get(), amount, TransactionType.WITHDRAW);
         wallet.get().setBalance(wallet.get().getBalance() - amount);
         this.walletRepository.save(wallet.get());
         return wallet;
+    }
+
+    private void saveTransactionToDatabase(Wallet wallet, double amount, TransactionType transactionType) {
+        WalletServiceTransactionLogger transactionLogger = new WalletServiceTransactionLogger();
+        transactionLogger.setCustomerId(wallet.getCustomer().getId());
+        transactionLogger.setBalance_before(wallet.getBalance());
+        transactionLogger.setBalance_after(wallet.getBalance() + amount);
+        transactionLogger.setTransaction_amount(amount);
+        transactionLogger.setTransaction_currency(wallet.getCurrency());
+        transactionLogger.setTransaction_date(LocalDate.now());
+        transactionLogger.setClientIpAdress(clientRequestInfo.getClientIpAdress());
+        transactionLogger.setClientReqUrl(clientRequestInfo.getClientIpAdress()+clientRequestInfo.getClientUrl());
+        transactionLogger.setClientSessionActivityId(clientRequestInfo.getSessionActivityId());
+        transactionLogger.setTransactionType(transactionType);
+        this.transactionLoggerRepository.save(transactionLogger);
     }
 
     private Optional<Wallet> getWalletForDepositWithdraw(long customerId, String currencyName) {
@@ -89,5 +119,12 @@ public class WalletAppService {
             throw new BadRequestException("Customer : " + foundCustomer.getFirstName() + " " + foundCustomer.getSecondName() + " does not have wallet with currency : " + currencyName);
         }
         return wallet;
+    }
+
+    public Page<List<WalletServiceTransactionLogger>> getAllTransactionsWithDate(String transactionDate, Pageable pageable) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
+        WalletAppValidatorUtil.validateTransactionDate(transactionDate, formatter);
+        LocalDate transaction_date = LocalDate.parse(transactionDate, formatter);
+        return this.transactionLoggerRepository.findAllByTransactionDate(transaction_date, pageable);
     }
 }

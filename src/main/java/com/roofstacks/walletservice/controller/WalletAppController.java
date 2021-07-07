@@ -4,7 +4,12 @@ import com.roofstacks.walletservice.dto.CustomerDTO;
 import com.roofstacks.walletservice.dto.WalletDTO;
 import com.roofstacks.walletservice.model.Customer;
 import com.roofstacks.walletservice.model.Wallet;
+import com.roofstacks.walletservice.model.WalletServiceTransactionLogger;
 import com.roofstacks.walletservice.service.WalletAppService;
+import io.swagger.annotations.ApiParam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -76,6 +81,10 @@ public class WalletAppController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-
-
+    @GetMapping(value = "/get-transactions-by-date", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Page<List<WalletServiceTransactionLogger>>> getAllTransactionsWithDate(
+            @ApiParam(value = "transaction date for query wallet service usage", example = "e.g. 05/07/2021", required = true)
+            @RequestParam String transactionDate, @PageableDefault(page = 0, size = 10) Pageable pageable) {
+        return new ResponseEntity<>(this.walletAppService.getAllTransactionsWithDate(transactionDate, pageable), HttpStatus.OK);
+    }
 }
