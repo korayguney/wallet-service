@@ -51,8 +51,8 @@ Example screenshot;
 
 According to Roof Stacks task functional requirements;
 
-### Test Business Rule-1 : 
-####'Users can add new wallets to this service. The wallet supports different currencies';
+### Testing Business Rule-1 : 
+#### 'Users can add new wallets to this service. The wallet supports different currencies';
 
 1. At first step, **_customer_** must be saved. Select **/api/customer/save-customer** under **customer-controller** and then **Try it out**
   ![swaggerui](./src/main/resources/img/swagger-02-save-customer-01.png)
@@ -106,8 +106,8 @@ According to Roof Stacks task functional requirements;
 * A customer must have only one wallet with same currency type. Instead, the server response (error) will be like below;
   ![swaggerui](./src/main/resources/img/swagger-03-save-wallet-03-exception.png)
 
-### Test Business Rule-2 :
-####'Users can deposit/withdraw the requested amount to the wallet that you have created';
+### Testing Business Rule-2 :
+#### 'Users can deposit/withdraw the requested amount to the wallet that you have created';
 
 1. **To deposit an amount**, Select **/api/wallet/deposit** under **wallet-app-controller** and then **Try it out**
    
@@ -125,7 +125,7 @@ According to Roof Stacks task functional requirements;
 
 4. **To withdraw an amount**, Select **/api/wallet/withdraw** under **wallet-app-controller** and then **Try it out**
 
-5. Write valid inputs and press **Execute**, then server response will be displayed with new balance amount;
+5. Write valid inputs and press **Execute**
 
 6. There are some validations and business requirements to generate a valid request to withdraw an amount from wallet;
 * Currency value must only include one of these values; (lowercase is also accepted)
@@ -137,6 +137,36 @@ According to Roof Stacks task functional requirements;
 * Customer must already have a wallet with declared currency.
 * Customer balance amount must be enough for requested withdraw amount. Instead, the server response (error) will be like below;
   ![swaggerui](./src/main/resources/img/swagger-05-withdraw-01-exception.png)
+
+### Testing Business Rule-3 :
+#### 'Users can query the current balance';
+
+1. To query the current balance, Select **/api/wallet/get-wallets/{customerId}** under **wallet-app-controller** and then **Try it out**
+
+2. Write valid inputs and press **Execute**, then server response will be displayed with all wallet details that includes balance;
+   ![swaggerui](./src/main/resources/img/swagger-04-get-wallets-01.png)
+   
+3. To query with specific currency type, Select **/api/wallet/get-wallets/{customerId}/{currency}** 
+   under **wallet-app-controller** and then **Try it out**
+   
+4. Write valid inputs and press **Execute**, then server response will be displayed with the wallet details that includes balance.
+
+### Testing Business Rule-4 :
+#### 'All transactions could be able to report.';
+
+1. To query all transactions, Select **/api/wallet/get-transactions-by-date** under **wallet-app-controller** and then **Try it out**
+
+2. Write valid inputs and press **Execute**; (Date must be in declared format. e.g. **_08/07/2021_**)
+   ![swaggerui](./src/main/resources/img/swagger-06-transaction-01.png)
+   
+3. Then server response will be displayed;
+   ![swaggerui](./src/main/resources/img/swagger-06-transaction-02.png)
+
+4. The query data has pageable function. For bulk data results, pageable parameters could be set optionally.
+
+5. It is also possible to display transaction details on database with queries. Follow **['Database login'](#Database-login-)** section to access database.
+   ![h2ui](./src/main/resources/img/db-transaction-01.png)
+
 
 ### Database login
 
