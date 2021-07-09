@@ -14,7 +14,7 @@ mvn clean install
 or if you don't have installed maven on your OS
 
 ```
-mvnw clan install
+mvnw clean install
 ```
 
 
