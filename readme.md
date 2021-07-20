@@ -170,7 +170,7 @@ According to Roof Stacks task functional requirements;
 
 ### Database login
 
-This project is using H2 database to store locally the url/deeplink conversion requests/responses. To access H2 console;
+This project is using H2 database to store required data. To access H2 console;
 *  http://localhost:8080/h2-console/
 
 After that, login screen will be displayed;
