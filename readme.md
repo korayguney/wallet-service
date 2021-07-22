@@ -186,3 +186,123 @@ To login, below credentials must be written to login screen and then click **Con
 | User Name | sa  |
 | Password  | password  |
 
+### ELK Stack Support
+
+To use ELK Stack APIs (Elasticsearch, Logstash and Kibana), follow the instructions at below;
+
+#### Logstash
+1. Download and unzip Logstash from; 
+    * https://www.elastic.co/downloads/logstash
+
+2. Generate a logging file that will be aggregated from Logstash. Declare a property into application.yml such as;
+```
+logging:
+  file:
+    name: wallet-service.log
+```
+
+3. Prepare a config file named **'logstash.conf'** under downloaded logstash directory . e.g; _(Change paths according to your project paths)_
+```
+input { 
+	file {
+		type=>"wallet-service-log"
+		path=>"C:\Users\koray\Git Projects\wallet-service\wallet-service.log"
+	}
+}
+
+output {
+	if [type] == "wallet-service-log" {
+		elasticsearch { 
+			hosts => ["localhost:9200"]
+			index => "wallet-service-%{+YYYY.MM.dd}"
+		}
+	}
+  stdout { codec => rubydebug }
+}
+```
+
+4. Connect to the terminal and execute command under downloaded logstash directory to start logstash;
+```
+bin/logstash -f logstash.conf (for MAC-OS or UNIX)
+bin\logstash.bat -f logstash.conf (for WINDOWS)
+```
+
+#### Elasticsearch
+1. Download and unzip Elasticsearch from;
+    * https://www.elastic.co/downloads/elasticsearch
+2. Run **bin/elasticsearch** (or **bin\elasticsearch.bat** on Windows)
+3. Run _**curl http://localhost:9200/**_ or **_Invoke-RestMethod http://localhost:9200_** with PowerShell. You should 
+display below JSON response;
+```
+{
+    "name": "LAPTOP-xxxxxx",
+    "cluster_name": "elasticsearch",
+    "cluster_uuid": "xxxxxxxxxxxx",
+    "version": {
+        "number": "7.13.4",
+        "build_flavor": "default",
+        "build_type": "zip",
+        "build_hash": "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "build_date": "2021-07-14T18:33:36.673943207Z",
+        "build_snapshot": false,
+        "lucene_version": "8.8.2",
+        "minimum_wire_compatibility_version": "6.8.0",
+        "minimum_index_compatibility_version": "6.0.0-beta1"
+        },
+    "tagline": "You Know, for Search"
+}
+```
+4. After running the Spring Boot application, browse to the; **http://localhost:9200/_cat/** to display 
+available endpoints. Result would be;
+```
+=^.^=
+/_cat/allocation
+/_cat/shards
+/_cat/shards/{index}
+/_cat/master
+/_cat/nodes
+/_cat/tasks
+/_cat/indices
+/_cat/indices/{index}
+/_cat/segments
+/_cat/segments/{index}
+/_cat/count
+/_cat/count/{index}
+/_cat/recovery
+/_cat/recovery/{index}
+/_cat/health
+/_cat/pending_tasks
+/_cat/aliases
+/_cat/aliases/{alias}
+/_cat/thread_pool
+/_cat/thread_pool/{thread_pools}
+/_cat/plugins
+/_cat/fielddata
+/_cat/fielddata/{fields}
+/_cat/nodeattrs
+/_cat/repositories
+/_cat/snapshots/{repository}
+/_cat/templates
+/_cat/ml/anomaly_detectors
+/_cat/ml/anomaly_detectors/{job_id}
+/_cat/ml/trained_models
+/_cat/ml/trained_models/{model_id}
+/_cat/ml/datafeeds
+/_cat/ml/datafeeds/{datafeed_id}
+/_cat/ml/data_frame/analytics
+/_cat/ml/data_frame/analytics/{id}
+/_cat/transforms
+/_cat/transforms/{transform_id}
+```   
+5. Browse to the **http://localhost:9200/_cat/indices** to display indexed log files. Then browse to 
+the indexed logs such as; **http://localhost:9200/wallet-service-2021.07.21/_search?q=*&format&pretty**
+(change suffix date according to the displayed indices)
+   
+#### Kibana
+1. Download and unzip Kibana from;
+    * https://www.elastic.co/downloads/kibana
+2. Run **bin/kibana** (or **bin\kibana.bat** on Windows)
+3. Point your browser at **http://localhost:5601** and select Index Patterns from the left panel;
+
+![kibana](./src/main/resources/img/kibana.png)
+   
