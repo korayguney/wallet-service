@@ -35,6 +35,8 @@ class WalletAppControllerTest {
         // when
         WalletDTO dto = new WalletDTO();
         dto.setBalance(100.0);
+        dto.setCustomerId(2L);
+        dto.setCurrency(Currency.TRY);
         Wallet actual = walletAppController.saveWallet(dto).getBody();
 
         // then
