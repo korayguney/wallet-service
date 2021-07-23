@@ -77,6 +77,8 @@ class WalletAppServiceTest {
         expected.setCurrency(Currency.TRY);
         Customer customer = new Customer();
         customer.setId(2L);
+        customer.setFirstName("FName");
+        customer.setSecondName("SName");
         expected.setCustomer(customer);
         when(mockWalletMapper.mapFromWalletDTOtowallet(any())).thenReturn(expected);
         when(mockWalletRepository.selectExistsWalletWithSameCurrency(any(), anyLong())).thenReturn(Boolean.FALSE);
@@ -84,6 +86,9 @@ class WalletAppServiceTest {
 
         // when
         WalletDTO dto = new WalletDTO();
+        dto.setCustomerId(2L);
+        dto.setCurrency(Currency.TRY);
+        dto.setBalance(0.0);
         Wallet actual = this.walletAppService.save_wallet(dto).get();
 
         // then
@@ -103,6 +108,9 @@ class WalletAppServiceTest {
 
         // when
         WalletDTO dto = new WalletDTO();
+        dto.setCustomerId(2L);
+        dto.setCurrency(Currency.TRY);
+        dto.setBalance(0.0);
         Executable executable = () -> this.walletAppService.save_wallet(dto).get();
 
         // then
