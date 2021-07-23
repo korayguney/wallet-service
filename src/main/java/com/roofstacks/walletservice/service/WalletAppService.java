@@ -15,6 +15,7 @@ import com.roofstacks.walletservice.repository.WalletRepository;
 import com.roofstacks.walletservice.repository.WalletServiceTransactionLoggerRepository;
 import com.roofstacks.walletservice.utils.ClientRequestInfo;
 import com.roofstacks.walletservice.utils.WalletAppValidatorUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class WalletAppService {
 
     @Autowired
@@ -42,8 +44,10 @@ public class WalletAppService {
     private ClientRequestInfo clientRequestInfo;
 
     public Optional<Customer> save_customer(CustomerDTO customer) {
+        log.info("Saving customer : {} {} , SSID: {}", customer.getFirstName(), customer.getSecondName(), customer.getSsid());
         boolean isExists = customerRepository.selectExistsSsid(customer.getSsid());
         if (isExists) {
+            log.error("Customer with SSID : " + customer.getSsid() + " is already created!");
             throw new BadRequestException("Customer with SSID : " + customer.getSsid() + " is already created!");
         }
 
@@ -54,9 +58,16 @@ public class WalletAppService {
 
 
     public Optional<Wallet> save_wallet(WalletDTO wallet) {
+        log.info("Saving wallet for customerId: {}, \nCurrency Type: {}({}) , \nBalance : {}",
+                wallet.getCustomerId(),
+                wallet.getCurrency().getCurrencyName(),
+                wallet.getCurrency().getCurrencySign(),
+                wallet.getBalance());
         this.validateRequest(wallet);
         Wallet mappedWalled = walletMapper.mapFromWalletDTOtowallet(wallet);
         if (walletRepository.selectExistsWalletWithSameCurrency(mappedWalled.getCurrency(), mappedWalled.getCustomer().getId())) {
+            log.error("Wallet with currency type : " + mappedWalled.getCurrency().getCurrencyName()
+                    + " is already exists for customer: " + mappedWalled.getCustomer().getFirstName() + " " + mappedWalled.getCustomer().getSecondName());
             throw new WalletAlreadyExistsException("Wallet with currency type : " + mappedWalled.getCurrency().getCurrencyName()
                     + " is already exists for customer: " + mappedWalled.getCustomer().getFirstName() + " " + mappedWalled.getCustomer().getSecondName());
         }
