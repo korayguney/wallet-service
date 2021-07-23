@@ -306,3 +306,35 @@ the indexed logs such as; **http://localhost:9200/wallet-service-2021.07.21/_sea
 
 ![kibana](./src/main/resources/img/kibana.png)
    
+### Dockerize ELK Stack
+In this project, docker can be used to manage application and trace logs via ELK stack APIs.
+#### Building the applications and creating Docker images
+Wallet service use the `dockerfile-maven` plugin from Spotify to make the Docker build process integrate with the Maven build process. So when we build a Spring Boot artifact, we'll also build a Docker image for it.
+
+To build the Spring Boot applications and their Docker images:
+
+- Go to the `wallet-service` folder: `cd wallet-service` from terminal
+- Build the application and create a Docker image: `mvn clean install`
+
+#### Spinning up the containers
+
+In the root folder of our project, where the `docker-compose.yml` resides, spin up the Docker containers running `docker-compose up`.
+
+#### Visualizing logs in Kibana
+
+- Open Kibana in your favourite browser: `http://localhost:5601`. When attempting to to access Kibana while it's starting, a message saying that Kibana is not ready yet will be displayed in the browser. Enhance your calm, give it a minute or two and then you are good to go.
+
+- In the first time you access Kibana, a welcome page will be displayed. Kibana comes with sample data in case we want to play with it. 
+  - To explore the data generate by our applications, click the _Explore on my own_ link.
+  - On the left hand side, click the _Discover_ icon.
+  - Kibana uses index patterns for retrieving data from Elasticsearch. As it's the first time we are using Kibana, we must create an index pattern to explore our data. We should see an index that has been created by Logstash. So create a pattern for matching the Logstash indexes using `logstash-*` and then click the _Next step_ button.
+
+![kibana2](./src/main/resources/img/kibana2.png)
+
+  - Then pick a field for filtering the data by time. Choose `@timestamp` and click the _Create index pattern_ button.
+
+![kibana3](./src/main/resources/img/kibana3.png)
+
+- The index pattern will be created. Click again in the _Discover_ icon and the log events of both post and comment services start up will be shown:
+
+![kibana4](./src/main/resources/img/kibana4.png)

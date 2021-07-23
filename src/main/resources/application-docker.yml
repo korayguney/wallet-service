@@ -1,0 +1,6 @@
+spring:
+  main:
+    banner-mode: "off"
+
+wallet-service:
+  base-url: http://wallet-service:8080
