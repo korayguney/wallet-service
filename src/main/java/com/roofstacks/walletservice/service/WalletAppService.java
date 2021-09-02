@@ -70,6 +70,7 @@ public class WalletAppService {
     }
 
     // will be used by WalletMapper during compile
+    // if you don't want to see any exception handling error at "orElseThrow", extends CustomerNotFoundException from RunTimeException!
     public Customer findCustomerById(long customerId) {
         Customer foundCustomer = customerRepository.findById(customerId).
                 orElseThrow(() -> new CustomerNotFoundException("Customer with ID : " + customerId + " could not found!"));
@@ -82,6 +83,10 @@ public class WalletAppService {
 
     public Optional<List<Wallet>> getAllWallets(long customerId) {
         return Optional.of(walletRepository.findAllByCustomer(this.findCustomerById(customerId)));
+    }
+
+    public Optional<List<Wallet>> getAllWallets() {
+        return Optional.of(walletRepository.findAll());
     }
 
     public Optional<Wallet> deposit(long customerId, String currencyName, double amount) {
