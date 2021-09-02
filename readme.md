@@ -42,12 +42,43 @@ The project will run on port 8080 (configured as default).
 How to test the project:
 -----------------------
 
-You can test the project from Swagger API UI. To access Swagger UI, go to;  
+* _JWT Authentication_ is enabled for the project. For this reason, it is necessary to get a valid token at first.
+* If there is a registered user on the system, this user can be used to get a JWT token. If there is no user, it is necessary to sign up a user;
+
+
+**Request URL;**
+
+`http://localhost:8080/api/users/sign-up`
+
+
+**Request Body;**
+
+`{
+"password": "koray",
+"username": "pass"
+}`
+
+
+**or cURL;**
+
+`curl -X POST "http://localhost:8080/api/users/sign-up" -H "accept: */*" -H "Content-Type: application/json" -d "{ "password": "koray", "username": "pass"}"`
+
+* After sign-up, it is necessary to login for get a valid JWT token. To do this; send a POST request with signed up user to; http://localhost:8080/login
+* Token will be inside of headers (with "Authorization" key)
+
+![postman](./src/main/resources/img/swagger-07-jwt.png)
+
+
+* After getting a valid token, you can test the project from Swagger API UI. To access Swagger UI, go to;  
 * http://localhost:8080/swagger-ui.html
 
 Example screenshot;
 
 ![swaggerui](./src/main/resources/img/swagger-01.png)
+
+* Taken JWT token must be written to Authorization section of Swagger;
+
+![swaggerui](./src/main/resources/img/swagger-08-jwt.png)
 
 According to Roof Stacks task functional requirements;
 

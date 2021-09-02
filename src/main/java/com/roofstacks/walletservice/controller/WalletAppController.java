@@ -35,12 +35,20 @@ public class WalletAppController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/get-wallets/{customerId}")
-    public ResponseEntity<List<Wallet>> getAllWallets(@PathVariable long customerId){
-        Optional<List<Wallet>> resultOptional = this.walletAppService.getAllWallets(customerId);
-        if (resultOptional.isPresent()) {
-            return new ResponseEntity<>(resultOptional.get(), HttpStatus.OK);
+    @GetMapping("/get-wallets")
+    public ResponseEntity<List<Wallet>> getAllWallets(@RequestParam(required = false, defaultValue = "0") long customerId){
+        if(customerId > 0) {
+            Optional<List<Wallet>> resultOptional = this.walletAppService.getAllWallets(customerId);
+            if (resultOptional.isPresent()) {
+                return new ResponseEntity<>(resultOptional.get(), HttpStatus.OK);
+            }
+        } else {
+            Optional<List<Wallet>> resultOptional = this.walletAppService.getAllWallets();
+            if (resultOptional.isPresent()) {
+                return new ResponseEntity<>(resultOptional.get(), HttpStatus.OK);
+            }
         }
+
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
