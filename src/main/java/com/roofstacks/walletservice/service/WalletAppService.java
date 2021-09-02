@@ -18,7 +18,9 @@ import com.roofstacks.walletservice.utils.WalletAppValidatorUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -147,6 +149,7 @@ public class WalletAppService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
         WalletAppValidatorUtil.validateTransactionDate(transactionDate, formatter);
         LocalDate transaction_date = LocalDate.parse(transactionDate, formatter);
+        //pageable = PageRequest.of(0, 10, Sort.by("xxxxx").descending());
         return this.transactionLoggerRepository.findAllByTransactionDate(transaction_date, pageable);
     }
 }

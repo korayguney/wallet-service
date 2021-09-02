@@ -3,6 +3,7 @@ package com.roofstacks.walletservice.repository;
 import com.roofstacks.walletservice.model.WalletServiceTransactionLogger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
