@@ -48,7 +48,7 @@ How to test the project:
 
 **Request URL;**
 
-`http://localhost:8080/api/users/sign-up`
+`http://localhost:8080/api/sign-up`
 
 
 **Request Body;**
@@ -61,7 +61,7 @@ How to test the project:
 
 **or cURL;**
 
-`curl -X POST "http://localhost:8080/api/users/sign-up" -H "accept: */*" -H "Content-Type: application/json" -d "{ "password": "koray", "username": "pass"}"`
+`curl -X POST "http://localhost:8080/api/sign-up" -H "accept: */*" -H "Content-Type: application/json" -d "{ "password": "koray", "username": "pass"}"`
 
 * After sign-up, it is necessary to login for get a valid JWT token. To do this; send a POST request with signed up user to; http://localhost:8080/login
 * Token will be inside of headers (with "Authorization" key)
