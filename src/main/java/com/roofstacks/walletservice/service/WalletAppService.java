@@ -145,11 +145,14 @@ public class WalletAppService {
         return wallet;
     }
 
-    public Page<List<WalletServiceTransactionLogger>> getAllTransactionsWithDate(String transactionDate, Pageable pageable) {
+    public Page<List<WalletServiceTransactionLogger>> getAllTransactionsWithDate(String transactionDate, Integer page, Integer size, Pageable pageable) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
         WalletAppValidatorUtil.validateTransactionDate(transactionDate, formatter);
         LocalDate transaction_date = LocalDate.parse(transactionDate, formatter);
         //pageable = PageRequest.of(0, 10, Sort.by("xxxxx").descending());
+        if(page != null || size != null){
+            pageable = PageRequest.of(page, size);
+        }
         return this.transactionLoggerRepository.findAllByTransactionDate(transaction_date, pageable);
     }
 }
